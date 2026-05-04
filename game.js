@@ -7,7 +7,7 @@ class MainScene extends Phaser.Scene {
         this.load.image("player", "assets/player.png");
         
         // видео фон
-        this.load.video("bg", "assets/bg.mp4", "loadeddata", false, true);
+        this.load.video("bg", "https://labs.phaser.io/assets/video/test.mp4", "loadeddata", false, true);
     }
 
     create() {
