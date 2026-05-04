@@ -7,23 +7,23 @@ class MainScene extends Phaser.Scene {
         this.load.image("player", "assets/player.png");
         this.load.image("ui", "assets/ui.png");
 
-        // стандартная пуля Phaser
-        this.load.image("bullet", "https://labs.phaser.io/assets/sprites/bullets/bullet7.png");
-
-        // фон видео
         this.load.video("bg", "assets/bg.mp4", "loadeddata", false, true);
+
+        // стандартный спрайт пули Phaser
+        this.load.image("bullet", "https://labs.phaser.io/assets/sprites/bullets/bullet7.png");
     }
 
     create() {
 
-        // ===== BACKGROUND VIDEO =====
+        // 🎥 фон
         this.bg = this.add.video(200, 300, "bg");
         this.bg.play(true);
         this.bg.setMute(true);
         this.bg.setLoop(true);
         this.bg.setDepth(-1);
+        this.bg.setDisplaySize(400, 600);
 
-        // ===== PLAYER =====
+        // 👤 игрок
         this.player = this.add.image(200, 300, "player");
         this.player.setScale(1);
 
@@ -32,91 +32,85 @@ class MainScene extends Phaser.Scene {
 
         this.smooth = 0.15;
 
-        // ===== BULLETS =====
-        this.bullets = this.physics.add.group({
-            defaultKey: "bullet",
-            maxSize: 50
-        });
+        // 🎯 пули
+        this.bullets = [];
 
-        // ===== SHOOT SETTINGS =====
-        this.shootMode = 0; // 0 = fast, 1 = spread
+        // 🔫 режим стрельбы
+        this.fireMode = 0; 
+        // 0 = straight
+        // 1 = spread
 
-        this.timeSinceLastShot = 0;
-        this.fireRate = 150;
-
-        // ===== INPUT =====
-        this.input.on("pointerdown", () => {
-            this.switchMode();
-        });
-
-        // ===== UI =====
-        this.ui = this.add.image(200, 300, "ui");
+        // 🔘 UI кнопка переключения
+        this.ui = this.add.image(200, 550, "ui");
         this.ui.setDepth(9999);
+        this.ui.setInteractive();
 
-        this.modeText = this.add.text(10, 10, "MODE: FAST", {
-            fontSize: "14px",
-            fill: "#ffffff"
-        }).setDepth(10000);
-
-        // авто-стрельба таймер
-        this.time.addEvent({
-            delay: 100,
-            loop: true,
-            callback: () => this.shoot()
+        this.ui.on("pointerdown", () => {
+            this.fireMode = (this.fireMode + 1) % 2;
+            console.log("Fire mode:", this.fireMode);
         });
-    }
 
-    switchMode() {
-        this.shootMode = this.shootMode === 0 ? 1 : 0;
-        this.modeText.setText(this.shootMode === 0 ? "MODE: FAST" : "MODE: SPREAD");
+        // 🔥 автострельба
+        this.time.addEvent({
+            delay: 150,
+            loop: true,
+            callback: this.shoot,
+            callbackScope: this
+        });
     }
 
     shoot() {
-        if (this.shootMode === 0) {
-            this.fireBullet(0);
-        } else {
-            this.fireBullet(-0.2);
-            this.fireBullet(0);
-            this.fireBullet(0.2);
+        let px = this.player.x;
+        let py = this.player.y;
+
+        let dx = this.pointer.x - px;
+        let dy = this.pointer.y - py;
+
+        let baseAngle = Math.atan2(dy, dx);
+
+        if (this.fireMode === 0) {
+            this.spawnBullet(px, py, baseAngle);
+        }
+
+        if (this.fireMode === 1) {
+            this.spawnBullet(px, py, baseAngle - Phaser.Math.DegToRad(30));
+            this.spawnBullet(px, py, baseAngle + Phaser.Math.DegToRad(30));
         }
     }
 
-    fireBullet(angleOffset) {
-        let bullet = this.bullets.get();
+    spawnBullet(x, y, angle) {
+        let bullet = this.add.image(x, y + 20, "bullet");
+        bullet.setScale(0.5);
 
-        if (!bullet) return;
+        bullet.speed = 6;
+        bullet.angleRad = angle;
 
-        bullet.setActive(true);
-        bullet.setVisible(true);
-
-        bullet.x = this.player.x;
-        bullet.y = this.player.y;
-
-        let angle = Phaser.Math.Angle.Between(
-            this.player.x,
-            this.player.y,
-            this.pointer.x,
-            this.pointer.y
-        );
-
-        angle += angleOffset;
-
-        this.physics.velocityFromRotation(angle, 400, bullet.body.velocity);
-
-        // удалить за экраном
-        this.time.delayedCall(2000, () => {
-            bullet.destroy();
-        });
+        this.bullets.push(bullet);
     }
 
     update() {
 
-        // ===== PLAYER FOLLOW MOUSE =====
-        let targetX = this.pointer.x;
-        let targetY = this.pointer.y;
+        // 👤 движение игрока
+        let tx = this.pointer.x;
+        let ty = this.pointer.y;
 
-        this.player.x += (targetX - this.player.x) * this.smooth;
-        this.player.y += (targetY - this.player.y) * this.smooth;
+        this.player.x += (tx - this.player.x) * this.smooth;
+        this.player.y += (ty - this.player.y) * this.smooth;
+
+        // 🔫 обновление пуль
+        for (let i = 0; i < this.bullets.length; i++) {
+            let b = this.bullets[i];
+
+            b.x += Math.cos(b.angleRad) * b.speed;
+            b.y += Math.sin(b.angleRad) * b.speed;
+
+            // удаление за экраном
+            if (b.x < -50 || b.x > 450 || b.y < -50 || b.y > 650) {
+                b.destroy();
+                this.bullets.splice(i, 1);
+                i--;
+            }
+        }
     }
 }
 
@@ -125,12 +119,6 @@ const config = {
     width: 400,
     height: 600,
     backgroundColor: "#0b0b0b",
-    physics: {
-        default: "arcade",
-        arcade: {
-            debug: false
-        }
-    },
     scene: MainScene,
     scale: {
         mode: Phaser.Scale.FIT,
