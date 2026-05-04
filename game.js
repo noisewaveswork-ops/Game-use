@@ -5,6 +5,8 @@ class MainScene extends Phaser.Scene {
 
     preload() {
         this.load.image("player", "assets/player.png");
+
+        this.load.image("ui", "assets/ui.png");
         
         // видео фон
         this.load.video("bg", "assets/bg.mp4", "loadeddata", false, true);
@@ -35,6 +37,10 @@ class MainScene extends Phaser.Scene {
 
         // плавность движения
         this.smooth = 0.15;
+
+
+        this.ui = this.add.image(200, 300, "ui");
+        this.ui.setDepth(9999);
     }
 
     update() {
