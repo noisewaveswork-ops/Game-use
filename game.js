@@ -13,11 +13,12 @@ class MainScene extends Phaser.Scene {
     create() {
         // 🎥 фон-видео
         this.bg = this.add.video(200, 300, "bg"); // центр 400x600
+        this.bg.play(true);
         this.bg.setMute(true);     // иначе autoplay не сработает
         this.bg.setLoop(true);
-        this.bg.play(true);
 
         this.bg.setDepth(-1);      // отправляем назад
+        console.log(this.bg);
 
         // форс через событие
         this.bg.on('play', () => {
