@@ -5,12 +5,33 @@ class MainScene extends Phaser.Scene {
 
     preload() {
         this.load.image("player", "assets/player.png");
+        
+         // видео фон
+        this.load.video("bg", "assets/bg.mp4", "loadeddata", false, true);
     }
 
     create() {
-        // игрок
-        this.player = this.add.image(400, 300, "player");
+        // 🎥 фон-видео
+        this.bg = this.add.video(200, 300, "bg"); // центр 400x600
+        this.bg.setMute(true);     // иначе autoplay не сработает
+        this.bg.setLoop(true);
+        this.bg.play(true);
+
+        this.bg.setDepth(-1);      // отправляем назад
+
+    // можно подогнать масштаб если не влезает
+        this.bg.setDisplaySize(400, 600);
+
+
+    // 👇 игрок (оставляем как есть, но поправим позицию)
+        this.player = this.add.image(200, 300, "player");
         this.player.setScale(1);
+
+        this.input.setDefaultCursor("none");
+
+        this.pointer = this.input.activePointer;
+
+        this.smooth = 0.15;
 
         // включаем мышь
         this.input.setDefaultCursor("none");
