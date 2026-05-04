@@ -33,10 +33,14 @@ class MainScene extends Phaser.Scene {
 
 const config = {
     type: Phaser.AUTO,
-    width: 800,
+    width: 400,
     height: 600,
     backgroundColor: "#0b0b0b",
-    scene: MainScene
+    scene: MainScene,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    }
 };
 
 new Phaser.Game(config);
