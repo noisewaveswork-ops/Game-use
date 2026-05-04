@@ -5,10 +5,13 @@ class MainScene extends Phaser.Scene {
 
     preload() {
         this.load.image("player", "assets/player.png");
+        
+        // видео фон
+        this.load.video("bg", "assets/bg.mp4", "loadeddata", false, true);
     }
 
     create() {
-            // 🎥 фон-видео
+        // 🎥 фон-видео
         this.bg = this.add.video(200, 300, "bg"); // центр 400x600
         this.bg.setMute(true);     // иначе autoplay не сработает
         this.bg.setLoop(true);
