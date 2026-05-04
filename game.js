@@ -25,7 +25,7 @@ class MainScene extends Phaser.Scene {
 
     // 👇 игрок (оставляем как есть, но поправим позицию)
         this.player = this.add.image(200, 300, "player");
-        this.player.setScale(1);
+        this.player.setScale(.2); // у меньшила а то спрайт у меня большой
 
         this.input.setDefaultCursor("none");
 
