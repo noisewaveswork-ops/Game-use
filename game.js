@@ -7,7 +7,7 @@ class MainScene extends Phaser.Scene {
         this.load.image("player", "assets/player.png");
         
         // видео фон
-        this.load.video("bg", "https://labs.phaser.io/assets/video/test.mp4", "loadeddata", false, true);
+        this.load.video("bg", "assets/bg.mp4", "loadeddata", false, true);
     }
 
     create() {
@@ -18,7 +18,10 @@ class MainScene extends Phaser.Scene {
         this.bg.play(true);
 
         this.bg.setDepth(-1);      // отправляем назад
-        
+
+        // форс через событие
+        this.bg.on('play', () => {
+        console.log('video started');
         // игрок
         this.player = this.add.image(400, 300, "player");
         this.player.setScale(1);
