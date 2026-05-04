@@ -9,8 +9,7 @@ class MainScene extends Phaser.Scene {
 
         this.load.video("bg", "assets/bg.mp4", "loadeddata", false, true);
 
-        // стандартный спрайт пули Phaser
-        this.load.image("bullet", "https://labs.phaser.io/assets/sprites/bullets/bullet7.png");
+        this.load.image("bullet", "assets/bullet.png");
     }
 
     create() {
