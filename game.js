@@ -22,6 +22,7 @@ class MainScene extends Phaser.Scene {
         // форс через событие
         this.bg.on('play', () => {
         console.log('video started');
+        });
         // игрок
         this.player = this.add.image(400, 300, "player");
         this.player.setScale(1);
