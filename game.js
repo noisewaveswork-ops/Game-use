@@ -10,6 +10,10 @@ class MainScene extends Phaser.Scene {
         this.load.video("bg", "assets/bg.mp4", "loadeddata", false, true);
 
         this.load.image("bullet", "assets/bullet.png");
+
+        this.load.on('loaderror', (file) => {
+        console.error('LOAD ERROR:', file.key, file.src);
+        });
     }
 
     create() {
