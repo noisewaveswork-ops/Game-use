@@ -4,58 +4,60 @@ class MainScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("player", "assets/player.png");
-        this.load.image("ui", "assets/ui.png");
 
-        this.load.video("bg", "assets/bg.mp4", "loadeddata", false, true);
+        // 👤 placeholder игрок
+        this.load.image("player", "https://labs.phaser.io/assets/sprites/phaser-dude.png");
 
-        this.load.image("bullet", "assets/bullet.png");
+        // 🔫 placeholder пуля
+        this.load.image("bullet", "https://labs.phaser.io/assets/sprites/bullets/bullet7.png");
 
-        this.load.on('loaderror', (file) => {
-        console.error('LOAD ERROR:', file.key, file.src);
-        });
+        // 🎬 видео фон (оставляем твой локальный, но можно заменить на тест)
+        this.load.video("bg", "https://labs.phaser.io/assets/video/earth.mp4", "loadeddata", false, true);
+
+        // 🧩 UI placeholder
+        this.load.image("ui", "https://labs.phaser.io/assets/sprites/button-pill-yellow.png");
     }
 
     create() {
 
         // 🎥 фон
         this.bg = this.add.video(200, 300, "bg");
-        this.bg.play(true);
         this.bg.setMute(true);
         this.bg.setLoop(true);
+        this.bg.play(true);
         this.bg.setDepth(-1);
         this.bg.setDisplaySize(400, 600);
 
         // 👤 игрок
         this.player = this.add.image(200, 300, "player");
-        this.player.setScale(1);
+        this.player.setScale(0.7);
 
+        // 🖱 курсор
         this.input.setDefaultCursor("none");
         this.pointer = this.input.activePointer;
 
         this.smooth = 0.15;
 
-        // 🎯 пули
+        // 🔫 пули
         this.bullets = [];
 
-        // 🔫 режим стрельбы
-        this.fireMode = 0; 
-        // 0 = straight
-        // 1 = spread
+        // 🔁 режим стрельбы
+        this.fireMode = 0;
 
-        // 🔘 UI кнопка переключения
+        // 🔘 UI кнопка
         this.ui = this.add.image(200, 550, "ui");
+        this.ui.setScale(0.6);
         this.ui.setDepth(9999);
         this.ui.setInteractive();
 
         this.ui.on("pointerdown", () => {
             this.fireMode = (this.fireMode + 1) % 2;
-            console.log("Fire mode:", this.fireMode);
+            console.log("Mode:", this.fireMode);
         });
 
         // 🔥 автострельба
         this.time.addEvent({
-            delay: 150,
+            delay: 120,
             loop: true,
             callback: this.shoot,
             callbackScope: this
@@ -63,29 +65,34 @@ class MainScene extends Phaser.Scene {
     }
 
     shoot() {
+
         let px = this.player.x;
         let py = this.player.y;
 
         let dx = this.pointer.x - px;
         let dy = this.pointer.y - py;
 
-        let baseAngle = Math.atan2(dy, dx);
+        let angle = Math.atan2(dy, dx);
 
+        // 🔹 режим 1: прямая
         if (this.fireMode === 0) {
-            this.spawnBullet(px, py, baseAngle);
+            this.spawnBullet(px, py, angle);
         }
 
+        // 🔹 режим 2: двойной веер
         if (this.fireMode === 1) {
-            this.spawnBullet(px, py, baseAngle - Phaser.Math.DegToRad(30));
-            this.spawnBullet(px, py, baseAngle + Phaser.Math.DegToRad(30));
+            this.spawnBullet(px, py, angle - Phaser.Math.DegToRad(30));
+            this.spawnBullet(px, py, angle + Phaser.Math.DegToRad(30));
         }
     }
 
     spawnBullet(x, y, angle) {
+
         let bullet = this.add.image(x, y + 20, "bullet");
+
         bullet.setScale(0.5);
 
-        bullet.speed = 6;
+        bullet.speed = 7;
         bullet.angleRad = angle;
 
         this.bullets.push(bullet);
@@ -100,14 +107,15 @@ class MainScene extends Phaser.Scene {
         this.player.x += (tx - this.player.x) * this.smooth;
         this.player.y += (ty - this.player.y) * this.smooth;
 
-        // 🔫 обновление пуль
+        // 🔫 пули
         for (let i = 0; i < this.bullets.length; i++) {
+
             let b = this.bullets[i];
 
             b.x += Math.cos(b.angleRad) * b.speed;
             b.y += Math.sin(b.angleRad) * b.speed;
 
-            // удаление за экраном
+            // удаление
             if (b.x < -50 || b.x > 450 || b.y < -50 || b.y > 650) {
                 b.destroy();
                 this.bullets.splice(i, 1);
